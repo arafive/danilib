@@ -4,7 +4,7 @@ import sys
 import logging
 
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, List, Any
 
 
 def f_buongiorno():
@@ -182,3 +182,61 @@ def f_settaggio_db_arpal():
     connessione = cx_Oracle.connect(user='cmi', password='cmi', dsn=dsnStr)
     
     return connessione
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+def f_log_ciclo_for(lista_di_liste: List[List[Any]]) -> None:
+    """
+    Logga lo stato di avanzamento di un ciclo for su più liste.
+
+    Ogni elemento di `lista_di_liste` deve essere una lista di 3 elementi:
+        1. Descrizione (str)
+        2. Elemento corrente
+        3. Lista iterata
+
+    Il messaggio log mostrerà per ogni elemento:
+        "{descrizione}{elemento} [posizione_corrente/numero_totale]"  
+    separato da ' · '.
+    
+    Esempio di uso:
+        import numpy as np
+        a = np.arange(4)
+        for i in a:
+            f_log_ciclo_for([['a ', i, a]])
+
+        >>> a 0 [1/4]
+        >>> a 1 [2/4]
+        >>> a 2 [3/4]
+        >>> a 3 [4/4]
+        
+    Parameters
+    ----------
+    lista_di_liste : List[List[Any]]
+        Lista di liste contenenti descrizione, elemento corrente e lista iterata.
+
+    Returns
+    -------
+    None
+    """
+    logger = f_logger()
+    output_parts = []
+
+    for n, item in enumerate(lista_di_liste, 1):
+        if len(item) != 3:
+            raise ValueError(f"L'elemento {n} non ha 3 elementi: {item}")
+
+        descrizione, elemento, lista_iterata = item
+
+        # Assicurati che lista_iterata sia realmente una lista
+        if not isinstance(lista_iterata, list):
+            lista_iterata = list(lista_iterata)
+
+        posizione = lista_iterata.index(elemento) + 1
+        totale = len(lista_iterata)
+
+        output_parts.append(f"{descrizione}{elemento} [{posizione}/{totale}]")
+
+    logger.info(" · ".join(output_parts))
