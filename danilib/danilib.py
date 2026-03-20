@@ -1,12 +1,13 @@
 
 import os
 import sys
+import cfgrib
 import logging
 
 import pandas as pd
 import xarray as xr
 from datetime import timedelta
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Tuple
 
 
 def f_buongiorno():
@@ -294,3 +295,45 @@ def f_dataframe_ds_variabili(lista_ds: List[xr.Dataset]) -> pd.DataFrame:
         df["GRIB_dataType"] = "fc"
 
     return df
+
+    
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+def f_open_grib_attrs(
+    percorso_grib: str,
+    cartella_idx: Optional[str] = "/tmp"
+) -> Tuple[List[xr.Dataset], pd.DataFrame]:
+    """
+    Apre un file GRIB con cfgrib e restituisce i dataset e un DataFrame con gli attributi delle variabili.
+
+    Parameters
+    ----------
+    percorso_grib : str
+        Percorso del file GRIB.
+    cartella_idx : str, optional
+        Cartella dove salvare il file index di cfgrib.
+
+    Returns
+    -------
+    Tuple[List[xr.Dataset], pd.DataFrame]
+        - Lista di dataset xarray
+        - DataFrame con attributi delle variabili
+    """
+    logger = f_logger()
+    
+    index_path = f"{cartella_idx}/{percorso_grib.split('/')[-1]}_lista_ds.idx"
+
+    logger.info(f"Apertura GRIB: {percorso_grib}", stacklevel=2)
+
+    lista_ds = cfgrib.open_datasets(
+        percorso_grib,
+        backend_kwargs={
+            "indexpath": index_path
+        }
+    )
+
+    df_attrs = f_dataframe_ds_variabili(lista_ds)
+
+    return lista_ds, df_attrs
