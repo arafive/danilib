@@ -8,7 +8,8 @@ from typing import Optional
 
 
 def f_buongiorno():
-    print('Buongiorno :)')
+    logger = f_logger()
+    logger.info('Buongiorno :)', stacklevel=2)
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -30,8 +31,9 @@ def f_crea_cartella(percorso_cartella: str):
         Percorso della cartella creata.
 
     """
+    logger = f_logger()
     os.makedirs(percorso_cartella, exist_ok=True)
-    print(f'Creata cartella {percorso_cartella}')
+    logger.info(f'Creata cartella {percorso_cartella}', stacklevel=2)
 
     return percorso_cartella
 
@@ -159,6 +161,10 @@ def f_logger(level: int = logging.INFO) -> logging.Logger:
     logger.addHandler(handler)
 
     return logger
+
+    
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 
