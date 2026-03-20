@@ -167,35 +167,18 @@ def f_logger(level: int = logging.INFO) -> logging.Logger:
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
+def f_settaggio_db_arpal():
+    """
+    Ritorna il settaggio per il collegamento al database.
 
+    Returns
+    -------
+    connessione : cx_Oracle.Connection
+        Connessione da passare a pd.read_sql().
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    """
+    import cx_Oracle
+    dsnStr = cx_Oracle.makedsn('cfmi_db.regione.liguria.it', '1522', 'cfmi')
+    connessione = cx_Oracle.connect(user='cmi', password='cmi', dsn=dsnStr)
+    
+    return connessione
