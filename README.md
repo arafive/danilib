@@ -10,7 +10,7 @@ pip install .
 
 ## Uso
 ```python
-from .danilib import f1, f2
+from danilib import f1, f2
 ```
 
 ## Disinstallazione
