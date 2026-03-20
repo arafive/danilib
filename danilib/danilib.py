@@ -6,6 +6,9 @@ import logging
 
 import pandas as pd
 import xarray as xr
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+
 from datetime import timedelta
 from typing import Optional, List, Any, Tuple
 
@@ -304,7 +307,7 @@ def f_dataframe_ds_variabili(lista_ds: List[xr.Dataset]) -> pd.DataFrame:
 def f_open_grib_attrs(
     percorso_grib: str,
     cartella_idx: Optional[str] = "/tmp"
-) -> Tuple[List[xr.Dataset], pd.DataFrame]:
+    ) -> Tuple[List[xr.Dataset], pd.DataFrame]:
     """
     Apre un file GRIB con cfgrib e restituisce i dataset e un DataFrame con gli attributi delle variabili.
 
@@ -337,3 +340,69 @@ def f_open_grib_attrs(
     df_attrs = f_dataframe_ds_variabili(lista_ds)
 
     return lista_ds, df_attrs
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+def f_plot_cartopy_veloce(
+        campo_2D: xr.DataArray,
+        cmap: str = "viridis",
+        figsize: tuple = (8, 8),
+        add_colorbar: bool = True,
+        ) -> None:
+    """
+    Plotta un campo 2D su mappa con Cartopy.
+
+    Parameters
+    ----------
+    campo_2D : xr.DataArray
+        Campo 2D con coordinate lat/lon.
+    cmap : str, optional
+        Colormap da usare.
+    figsize : tuple, optional
+        Dimensione figura.
+    add_colorbar : bool, optional
+        Se aggiungere la colorbar.
+
+    Returns
+    -------
+    None
+    """
+    assert len(campo_2D.dims) == 2, f'Le dimensioni NON sono 2 -> {campo_2D.dims}'
+    
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={'projection': ccrs.PlateCarree()})
+    
+    p = ax.pcolormesh(
+        campo_2D.longitude,
+        campo_2D.latitude,
+        campo_2D.values,
+        cmap=cmap,
+        transform=ccrs.PlateCarree()
+        )
+    
+    ax.coastlines(resolution='50m', lw=1)
+    
+    if add_colorbar:
+        plt.colorbar(p, ax=ax, orientation="vertical", pad=0.02, fraction=0.04)
+        
+    tempo = None
+    if "valid_time" in campo_2D.coords:
+        tempo = pd.to_datetime(campo_2D.valid_time.values)
+        if "step" in campo_2D.coords:
+            tempo = tempo + campo_2D.step.values
+    
+    long_name = campo_2D.attrs.get("long_name", "???")
+    units = campo_2D.attrs.get("units", "?")
+    
+    titolo = long_name
+    if units:
+        titolo += f" [{units}]"
+    if tempo is not None:
+        titolo += f" - {tempo}"
+
+    ax.set_title(titolo, fontsize=10, loc='left')
+
+    plt.show()
+    plt.close()

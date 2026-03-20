@@ -5,3 +5,4 @@ from .danilib import f_logger
 from .danilib import f_log_ciclo_for
 from .danilib import f_dataframe_ds_variabili
 from .danilib import f_open_grib_attrs
+from .danilib import f_plot_cartopy_veloce
