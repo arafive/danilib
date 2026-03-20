@@ -3,6 +3,8 @@ import os
 import sys
 import logging
 
+import pandas as pd
+import xarray as xr
 from datetime import timedelta
 from typing import Optional, List, Any
 
@@ -240,3 +242,55 @@ def f_log_ciclo_for(lista_di_liste: List[List[Any]]) -> None:
         output_parts.append(f"{descrizione}{elemento} [{posizione}/{totale}]")
 
     logger.info(" · ".join(output_parts))
+    
+    
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    
+    
+def f_dataframe_ds_variabili(lista_ds: List[xr.Dataset]) -> pd.DataFrame:
+    """
+    Costruisce un DataFrame che associa ogni variabile ai suoi attributi e all'indice del dataset di origine.
+
+    Parameters
+    ----------
+    lista_ds : List[xarray.Dataset]
+        Lista di dataset xarray.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame con:
+        - index: nome variabile
+        - colonne: attributi della variabile + id del dataset
+    """
+    records = []
+
+    # Costruzione lista (molto più efficiente di concat in loop)
+    for i, ds in enumerate(lista_ds):
+        for var in ds.data_vars:
+            attrs = ds[var].attrs.copy()
+            record = {"variabile": var, "id_ds": i, **attrs}
+            records.append(record)
+
+    df = pd.DataFrame.from_records(records).set_index("variabile")
+
+    # Rimuove colonne costanti
+    df = df.loc[:, df.nunique(dropna=False) > 1]
+
+    # Colonne da rimuovere (solo se esistono)
+    colonne_da_rimuovere = [
+        "long_name",
+        "standard_name",
+        "GRIB_cfName",
+        "units",
+        "GRIB_shortName",
+        "GRIB_cfVarName",
+    ]
+    df = df.drop(columns=[c for c in colonne_da_rimuovere if c in df.columns], errors="ignore")
+
+    # Gestione GRIB_dataType
+    if "GRIB_dataType" not in df.columns:
+        df["GRIB_dataType"] = "fc"
+
+    return df
