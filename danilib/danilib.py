@@ -1,5 +1,7 @@
 
 import os
+import sys
+import logging
 
 from datetime import timedelta
 from typing import Optional
@@ -90,5 +92,104 @@ def f_printa_tempo_trascorso(
     
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+class ColorFormatter(logging.Formatter):
+    def __init__(self, fmt: str, level_width: int = 8):
+        super().__init__(fmt)
+        self.fmt = fmt
+        self.level_width = level_width
+
+        self.reset = '\033[0m'
+        self.colors = {
+            logging.DEBUG: '\033[3;36m',
+            logging.INFO: '\033[32m',
+            logging.WARNING: '\033[5;33m',
+            logging.ERROR: '\033[1;31m',
+            logging.CRITICAL: '\033[35m',
+        }
+
+    def format(self, record):
+        color = self.colors.get(record.levelno, '')
+        original = record.levelname
+
+        aligned = f"{original:<{self.level_width}}"
+        record.levelname = f"{color}{aligned}{self.reset}"
+
+        formatter = logging.Formatter(self.fmt)
+        result = formatter.format(record)
+
+        record.levelname = original
+        return result
+
+
+def f_logger(level: int = logging.INFO) -> logging.Logger:
+    """
+    Crea e configura un logger con output colorato su terminale.
+
+    Parameters
+    ----------
+    level : int
+        Livello di logging (es. logging.DEBUG).
+
+    Returns
+    -------
+    logging.Logger
+    """
+    logger = logging.getLogger("mio_logger")
+
+    # Evita duplicazione handler se chiamata più volte
+    if logger.handlers:
+        return logger
+
+    logger.setLevel(level)
+    logger.propagate = False
+
+    level_width = 8
+    fmt = f"%(asctime)s  %(levelname)-{level_width}s  %(filename)s:%(lineno)s  %(message)s"
+
+    if sys.stdout.isatty():
+        handler = logging.StreamHandler()
+        handler.setFormatter(ColorFormatter(fmt, level_width))
+    else:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(fmt))
+
+    handler.setLevel(level)
+    logger.addHandler(handler)
+
+    return logger
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
