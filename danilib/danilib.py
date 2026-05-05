@@ -43,7 +43,7 @@ def f_crea_cartella(percorso_cartella: str):
 
     return percorso_cartella
 
-    
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -52,7 +52,7 @@ def f_printa_tempo_trascorso(
         t_inizio: float,
         t_fine: float,
         nota: Optional[str] = None
-        ) -> str:
+) -> str:
     """
     Calcola e formatta il tempo trascorso tra due istanti.
 
@@ -71,33 +71,33 @@ def f_printa_tempo_trascorso(
         Stringa formattata del tempo trascorso.
     """
     elapsed_tempo = timedelta(seconds=t_fine - t_inizio)
-    
+
     giorni = f'{elapsed_tempo.days:01}'
     ore = f'{elapsed_tempo.seconds//3600:02}'
     minuti = f'{elapsed_tempo.seconds//60%60:02}'
     secondi = f'{elapsed_tempo.seconds%60:02}'
     millisecondi = elapsed_tempo.microseconds / 1000
-    
+
     msg = f'{int(secondi)}.{int(millisecondi)} sec'
-    
+
     if int(minuti) > 0:
         msg = f'{minuti}:{secondi} min'
-    
+
     if int(ore) > 0:
         msg = f'{ore}:{minuti}:{secondi} ore'
-    
+
     if int(giorni) > 0:
         if int(giorni) == 1:
             msg = f'{giorni} giorno, {ore}:{minuti}:{secondi} ore'
         else:
             msg = f'{giorni} giorni, {ore}:{minuti}:{secondi} ore'
-    
+
     if nota:
         msg = f'{nota}: {msg}'
-        
+
     return msg
 
-    
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -168,7 +168,7 @@ def f_logger(level: int = logging.INFO) -> logging.Logger:
 
     return logger
 
-    
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -186,7 +186,7 @@ def f_settaggio_db_arpal():
     import cx_Oracle
     dsnStr = cx_Oracle.makedsn('cfmi_db.regione.liguria.it', '1522', 'cfmi')
     connessione = cx_Oracle.connect(user='cmi', password='cmi', dsn=dsnStr)
-    
+
     return connessione
 
 
@@ -206,7 +206,7 @@ def f_log_ciclo_for(lista_di_liste: List[List[Any]]) -> None:
     Il messaggio log mostrerà per ogni elemento:
         "{descrizione}{elemento} [posizione_corrente/numero_totale]"  
     separato da ' · '.
-    
+
     Esempio di uso:
         import numpy as np
         a = np.arange(4)
@@ -217,7 +217,7 @@ def f_log_ciclo_for(lista_di_liste: List[List[Any]]) -> None:
         >>> a 1 [2/4]
         >>> a 2 [3/4]
         >>> a 3 [4/4]
-        
+
     Parameters
     ----------
     lista_di_liste : List[List[Any]]
@@ -246,12 +246,12 @@ def f_log_ciclo_for(lista_di_liste: List[List[Any]]) -> None:
         output_parts.append(f"{descrizione}{elemento} [{posizione}/{totale}]")
 
     logger.info(" · ".join(output_parts))
-    
-    
+
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    
-    
+
+
 def f_dataframe_ds_variabili(lista_ds: List[xr.Dataset]) -> pd.DataFrame:
     """
     Costruisce un DataFrame che associa ogni variabile ai suoi attributi e all'indice del dataset di origine.
@@ -291,7 +291,8 @@ def f_dataframe_ds_variabili(lista_ds: List[xr.Dataset]) -> pd.DataFrame:
         "GRIB_shortName",
         "GRIB_cfVarName",
     ]
-    df = df.drop(columns=[c for c in colonne_da_rimuovere if c in df.columns], errors="ignore")
+    df = df.drop(
+        columns=[c for c in colonne_da_rimuovere if c in df.columns], errors="ignore")
 
     # Gestione GRIB_dataType
     if "GRIB_dataType" not in df.columns:
@@ -299,7 +300,7 @@ def f_dataframe_ds_variabili(lista_ds: List[xr.Dataset]) -> pd.DataFrame:
 
     return df
 
-    
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -307,7 +308,7 @@ def f_dataframe_ds_variabili(lista_ds: List[xr.Dataset]) -> pd.DataFrame:
 def f_open_grib_attrs(
     percorso_grib: str,
     cartella_idx: Optional[str] = "/tmp"
-    ) -> Tuple[List[xr.Dataset], pd.DataFrame]:
+) -> Tuple[List[xr.Dataset], pd.DataFrame]:
     """
     Apre un file GRIB con cfgrib e restituisce i dataset e un DataFrame con gli attributi delle variabili.
 
@@ -325,7 +326,7 @@ def f_open_grib_attrs(
         - DataFrame con attributi delle variabili
     """
     logger = f_logger()
-    
+
     index_path = f"{cartella_idx}/{percorso_grib.split('/')[-1]}_lista_ds.idx"
 
     logger.info(f"Apertura GRIB: {percorso_grib}", stacklevel=2)
@@ -351,7 +352,7 @@ def f_plot_cartopy_veloce(
         cmap: str = "viridis",
         figsize: tuple = (8, 8),
         add_colorbar: bool = True,
-        ) -> None:
+) -> None:
     """
     Plotta un campo 2D su mappa con Cartopy.
 
@@ -370,32 +371,34 @@ def f_plot_cartopy_veloce(
     -------
     None
     """
-    assert len(campo_2D.dims) == 2, f'Le dimensioni NON sono 2 -> {campo_2D.dims}'
-    
-    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={'projection': ccrs.PlateCarree()})
-    
+    assert len(
+        campo_2D.dims) == 2, f'Le dimensioni NON sono 2 -> {campo_2D.dims}'
+
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={
+                           'projection': ccrs.PlateCarree()})
+
     p = ax.pcolormesh(
         campo_2D.longitude,
         campo_2D.latitude,
         campo_2D.values,
         cmap=cmap,
         transform=ccrs.PlateCarree()
-        )
-    
+    )
+
     ax.coastlines(resolution='50m', lw=1)
-    
+
     if add_colorbar:
         plt.colorbar(p, ax=ax, orientation="vertical", pad=0.02, fraction=0.04)
-        
+
     tempo = None
     if "valid_time" in campo_2D.coords:
         tempo = pd.to_datetime(campo_2D.valid_time.values)
         if "step" in campo_2D.coords:
             tempo = tempo + campo_2D.step.values
-    
+
     long_name = campo_2D.attrs.get("long_name", "???")
     units = campo_2D.attrs.get("units", "?")
-    
+
     titolo = long_name
     if units:
         titolo += f" [{units}]"
