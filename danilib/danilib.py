@@ -179,13 +179,13 @@ def f_settaggio_db_arpal():
 
     Returns
     -------
-    connessione : cx_Oracle.Connection
+    connessione : oracledb.Connection
         Connessione da passare a pd.read_sql().
 
     """
-    import cx_Oracle
-    dsnStr = cx_Oracle.makedsn('cfmi_db.regione.liguria.it', '1522', 'cfmi')
-    connessione = cx_Oracle.connect(user='cmi', password='cmi', dsn=dsnStr)
+    import oracledb
+    dsnStr = oracledb.makedsn('cfmi_db.regione.liguria.it', '1522', 'cfmi')
+    connessione = oracledb.connect(user='cmi', password='cmi', dsn=dsnStr)
 
     return connessione
 
